@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💖 Um recado especial</title>
+
+<link rel="icon" href="./icon.png">
+<link rel="apple-touch-icon" href="./icon.png">
+<meta name="theme-color" content="#ff4d6d">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+
+<style>
+:root{
+  --card:rgba(255,255,255,.12);
+  --stroke:rgba(255,255,255,.18);
+  --text:rgba(255,255,255,.95);
+  --muted:rgba(255,255,255,.72);
+  --glow:rgba(255,122,162,.45);
+  --yes1:#ff4d6d;
+  --yes2:#ff8fab;
+}
+
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  min-height:100vh;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  color:var(--text);
+  overflow-x:hidden;
+}
+
+/* Fundo */
+.bg{
+  position:fixed;
+  inset:0;
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  filter: grayscale(8%) contrast(1.05);
+  transition: opacity 1.2s ease;
+  z-index:0;
+}
+.bg::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.65));
+}
+
+.wrap{
+  position:relative;
+  z-index:2;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+
+.card{
+  width:min(920px,92vw);
+  background:var(--card);
+  border:1px solid var(--stroke);
+  border-radius:22px;
+  backdrop-filter:blur(14px);
+  box-shadow:0 20px 60px rgba(0,0,0,.55);
+  padding:32px;
+}
+
+.badge{
+  display:inline-block;
+  padding:10px 16px;
+  border-radius:999px;
+  background:rgba(0,0,0,.25);
+  border:1px solid rgba(255,255,255,.25);
+  font-size:13px;
+  color:var(--muted);
+}
+
+h1{
+  margin:18px 0 10px;
+  font-size:clamp(26px,4vw,42px);
+  text-shadow:0 0 26px var(--glow);
+}
+
+p.lead{
+  margin:0;
+  color:var(--muted);
+  line-height:1.6;
+}
+
+.buttons{
+  margin-top:22px;
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+}
+
+button{
+  border:none;
+  padding:14px 22px;
+  border-radius:14px;
+  font-size:15px;
+  font-weight:650;
+  cursor:pointer;
+}
+
+.sim{
+  background:linear-gradient(135deg,var(--yes1),var(--yes2));
+  color:#300a14;
+}
+.nao{
+  background:#2f3445;
+  color:white;
+}
+
+.result{
+  margin-top:24px;
+  display:none;
+  animation:fadeUp .6s ease forwards;
+}
+
+@keyframes fadeUp{
+  from{ opacity:0; transform:translateY(12px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+
+/* TEXTO COM SCROLL */
+.bubble{
+  margin-top:10px;
+  padding:22px;
+  border-radius:18px;
+  background:rgba(0,0,0,.35);
+  border:1px solid rgba(255,255,255,.18);
+  white-space:pre-wrap;
+  line-height:1.9;
+
+  max-height:55vh;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding-right:12px;
+}
+
+.bubble::-webkit-scrollbar{ width:8px; }
+.bubble::-webkit-scrollbar-thumb{
+  background:rgba(255,255,255,.25);
+  border-radius:10px;
+}
+.bubble::-webkit-scrollbar-track{
+  background:rgba(255,255,255,.08);
+  border-radius:10px;
+}
+
+.footer{
+  margin-top:12px;
+  font-size:12px;
+  color:rgba(255,255,255,.65);
+}
+
+/* Final */
+#finalOverlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.75);
+  backdrop-filter:blur(10px);
+  z-index:9999;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+
+#finalBox{
+  width:min(720px,92vw);
+  border-radius:24px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.10);
+  box-shadow:0 20px 60px rgba(0,0,0,.55);
+  padding:28px;
+  text-align:center;
+  animation:pop .6s ease both;
+}
+
+@keyframes pop{
+  from{ opacity:0; transform:translateY(12px) scale(.98); }
+  to{ opacity:1; transform:translateY(0) scale(1); }
+}
+</style>
+</head>
+
+<body>
+
+<div id="bgA" class="bg" style="opacity:1"></div>
+<div id="bgB" class="bg" style="opacity:0"></div>
+
+<audio id="musica" loop preload="auto">
+  <source src="./musica.mp3" type="audio/mpeg">
+</audio>
+
+<div class="wrap">
+  <div class="card">
+    <span class="badge">💌 Um recado especial</span>
+    <h1>Você realmente quer ler?</h1>
+    <p class="lead">Prometo que vale a pena… 💖</p>
+
+    <div class="buttons">
+      <button class="sim" onclick="mostrarSim()">Sim, quero 💕</button>
+      <button class="nao" onclick="mostrarNao()">Não</button>
+    </div>
+
+    <div class="result" id="resultado">
+      <h3 id="titulo"></h3>
+      <div class="bubble" id="texto"></div>
+      <div class="footer">⬆️ Role para ler tudo ⬇️</div>
+      <div style="margin-top:14px">
+        <button class="sim" onclick="mostrarFinal()">Terminei de ler 💖</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="finalOverlay">
+  <div id="finalBox">
+    <div style="font-size:44px">💖</div>
+    <div style="font-size:34px;font-weight:800;text-shadow:0 0 26px rgba(255,122,162,.45)">Eu te amo</div>
+    <div id="dataEspecial" style="margin-top:10px;color:rgba(255,255,255,.75);font-weight:650"></div>
+    <div style="margin-top:18px">
+      <button class="nao" onclick="fecharFinal()">Fechar ✨</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* FOTOS */
+const fotos=[
+"./foto1.jpg","./foto2.jpg","./foto3.jpg","./foto4.jpg","./foto5.jpg",
+"./foto6.jpg","./foto7.jpg","./foto8.jpg","./foto9.jpg","./foto10.jpg"
+];
+
+const bgA=document.getElementById("bgA");
+const bgB=document.getElementById("bgB");
+let i=0,showA=true;
+
+bgA.style.backgroundImage=`url('${fotos[0]}')`;
+bgB.style.backgroundImage=`url('${fotos[1]||fotos[0]}')`;
+
+setInterval(()=>{
+  i=(i+1)%fotos.length;
+  const n=fotos[i];
+  if(showA){
+    bgB.style.backgroundImage=`url('${n}')`;
+    bgB.style.opacity=1;
+    bgA.style.opacity=0;
+  }else{
+    bgA.style.backgroundImage=`url('${n}')`;
+    bgA.style.opacity=1;
+    bgB.style.opacity=0;
+  }
+  showA=!showA;
+},5000);
+
+/* MÚSICA */
+const musica=document.getElementById("musica");
+function tocarMusica(){
+  musica.volume=0.55;
+  musica.play().catch(()=>{});
+}
+
+/* CONTEÚDO */
+function show(t,t2){
+  document.getElementById("titulo").innerText=t;
+  document.getElementById("texto").innerText=t2;
+  document.getElementById("resultado").style.display="block";
+}
+
+function mostrarSim(){
+  tocarMusica();
+  show("💖 Feliz aniversário, meu amor",
+`Feliz aniversário, meu amor.
+Agradeço todos os dias por você ter passado pela minha vida e por ser essa pessoa incrível.
+Posso dizer, com toda a certeza, que se não fosse você na minha vida, eu não seria nem metade da pessoa que sou hoje.
+
+Sou grato por você ser a menina dos olhos castanhos que alegra os meus dias, a garota do “amor, vamos conversar?”.
+A menina do “tu vive devendo aquela tia, tem certeza que não tem juros, Marco?”.
+
+A minha garota do “eu te amo, e você só sai daqui quando a gente se resolver”...
+
+Enfim, você entendeu. Eu queria que você se visse pelos meus olhos, pra conseguir enxergar como eu te vejo.
+A garota dos olhos mais lindos que eu já vi na minha vida e do sorriso que sempre me encanta.
+
+E sim, eu sinto medo de te perder… mas, acima de tudo, eu senti ainda mais medo de morrer sem te conhecer,
+porque aí, sim, eu nunca saberia o que é amar e ser amado.
+
+Feliz aniversário, princesa. Espero muito que eu seja o seu porto seguro para toda a vida.
+E eu queria dizer que, mesmo longe… um dia teremos a nossa casa e, finalmente, poderemos ficar juntos pelo tempo que você quiser.
+
+Fiz isso pra te desejar um feliz aniversário e pra dizer que você é a garota — aliás, você é a MINHA garota,
+a pessoa mais especial da minha vida.
+
+Feliz aniversário de 16 anos, meu amor.
+O primeiro que eu vou comemorar longe de você, mas um dos primeiros em que eu posso provar o quanto te amo.`);
+}
+
+function mostrarNao(){
+  show("😒 Tá bom então...","eu to tentando ser fofo da pra parar ? 😒");
+}
+
+/* FINAL */
+function mostrarFinal(){
+  document.getElementById("finalOverlay").style.display="flex";
+}
+function fecharFinal(){
+  document.getElementById("finalOverlay").style.display="none";
+}
+
+document.getElementById("dataEspecial").innerText="30/12/2025 — seu dia ✨";
+</script>
+
+</body>
+</html>
